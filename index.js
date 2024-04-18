@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-
+app.use(express.static('dist'))
 app.use(cors())
 
 let notes = [
@@ -31,6 +31,19 @@ app.get('/', (request, response) => {
 app.get('/api/notes', (request, response) => {
     response.json(notes)
 })
+app.put('/api/notes/:id', (request, response) => {
+    const { id } = request.params;
+    const { content, important } = request.body;
+    const note = notes.find(note => note.id === Number(id));
+
+    if (!note) return response.status(404).json({ error: 'Note not found' });
+
+    note.content = content || note.content;
+    note.important = important !== undefined ? important : note.important;
+
+    response.json(note);
+});
+
 
 const generateId = () => {
     const maxId = notes.length > 0
